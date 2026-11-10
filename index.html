@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!-- Ярлык CRM «СК БАРАКАТ»: значок и название на телефоне, по нажатию — сразу CRM.
+     Здесь нет данных и паролей: только адрес CRM, вход — в самой CRM. -->
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>СК БАРАКАТ</title>
+  <meta name="theme-color" content="#0f111a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="БАРАКАТ">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <style>
+    html, body { margin: 0; height: 100%; background: #0f111a; color: #e8e6e1; font-family: -apple-system, "Segoe UI", Roboto, sans-serif; }
+    .box { min-height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 24px; box-sizing: border-box; text-align: center; }
+    img { width: 120px; height: 120px; border-radius: 26px; }
+    h1 { margin: 0; font-size: 22px; font-weight: 600; }
+    a.btn, button.btn { display: inline-block; min-width: 220px; padding: 14px 20px; border-radius: 12px; border: 1px solid #c9a96a; background: #2a2418; color: #e9cf8f; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; }
+    .hint { font-size: 13px; color: #9a9aa5; max-width: 340px; line-height: 1.45; }
+    #install { display: none; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <img src="icon-192.png" alt="">
+    <h1>СК БАРАКАТ</h1>
+    <a class="btn" id="open" href="#">Открыть CRM</a>
+    <button class="btn" id="install" type="button">Установить на телефон</button>
+    <div class="hint" id="hint"></div>
+  </div>
+  <script>
+    // Адрес CRM (развёртывание Apps Script, /exec)
+    var CRM_URL = 'ВСТАВИТЬ_АДРЕС_CRM';
+    var open = document.getElementById('open'), hint = document.getElementById('hint'), inst = document.getElementById('install');
+    open.href = CRM_URL;
+    var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+    // Запущено со значка — сразу в CRM
+    if (standalone || /[?&]app=1/.test(location.search)) { location.replace(CRM_URL); }
+    else {
+      var ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      hint.innerHTML = ios
+        ? 'Чтобы значок был на экране: кнопка «Поделиться» <b>□↑</b> внизу → «На экран Домой» → «Добавить».'
+        : 'Чтобы значок был на экране: нажмите «Установить на телефон» или меню <b>⋮</b> → «Добавить на главный экран».';
+    }
+    if ('serviceWorker' in navigator) { try { navigator.serviceWorker.register('sw.js'); } catch (e) {} }
+    var deferred = null;
+    window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; inst.style.display = 'inline-block'; });
+    inst.addEventListener('click', function () { if (!deferred) return; deferred.prompt(); deferred.userChoice.then(function () { deferred = null; inst.style.display = 'none'; }); });
+  </script>
+</body>
+</html>
